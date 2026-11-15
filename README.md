@@ -15,7 +15,7 @@ Website: http://localhost:3000 · Content editor: http://localhost:3000/studio
 
 Sign in to the Studio with the account that owns the Alihoo Sanity project.
 
-- **Projects:** edit descriptions, set display order (lower numbers first), and upload image or video slides. Drag slides to reorder them. Video slides accept MP4/WebM and a poster image.
+- **Projects:** choose a cover image, edit descriptions, set display order (lower numbers first), and upload image or video slides. Drag slides to reorder them. Video slides accept MP4/WebM and a poster image.
 - **Site Settings:** edit the homepage bio, contact email, studio link, and the homepage loader image sequence.
 - Click **Publish** to make changes available to the website. Draft edits are not shown publicly. Published content uses a 30-second revalidation interval; reload the website after publishing. A stale request can trigger background refresh, so a further reload may be needed. No site rebuild is required.
 
@@ -54,3 +54,5 @@ The homepage loader uses 100ms frame changes and repeats every five seconds; adj
 Theme values and responsive composition are in `app/globals.css`. Homepage bio text has a 448px maximum at every breakpoint. Project descriptions have a 448px limit at widths of 1100px and above; below that, they fill their grid column. Desktop details use the same three-column structure as mobile, with descriptions aligned right. Mono applies luminosity blending to media.
 
 Source design: https://www.figma.com/design/l4sQOEy5fm4PlSK2ZcZbYY/Alihoo
+
+Project covers are independent of carousel order and appear as project thumbnails in Studio. Existing projects start with their first image as the cover. Run `pnpm exec sanity exec scripts/backfill-project-covers.ts --with-user-token` to fill missing covers safely; existing covers are preserved.

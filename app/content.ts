@@ -5,6 +5,7 @@ export type Slide = ImageSlide | VideoSlide;
 export type Project = {
   id: string;
   name: string;
+  cover?: ImageSlide;
   slides: readonly [Slide, ...Slide[]];
   paragraphs: readonly string[];
 };
@@ -34,6 +35,7 @@ export const motion = { loaderFrameMs: 100, loaderRepeatMs: 5000 };
 export const projects: Project[] = images.map((image, index) => ({
   id: `project-${index + 1}`,
   name: `Project ${String(index + 1).padStart(2, "0")}`,
+  cover: image,
   // Temporary shared images, beginning with each section's actual Figma image.
   slides: [image, ...images.slice(index + 1), ...images.slice(0, index)],
   paragraphs: bio,

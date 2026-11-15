@@ -24,7 +24,7 @@ async function main() {
   });
   projects.forEach((project, index) => {
     transaction = transaction.createIfNotExists({
-      _id: project.id, _type: "project", title: project.name, order: index + 1, paragraphs: [...project.paragraphs],
+      _id: project.id, _type: "project", title: project.name, order: index + 1, cover: image(project.cover!, index), paragraphs: [...project.paragraphs],
       slides: project.slides.filter((slide): slide is ImageSlide => slide.type !== "video").map(image),
     });
   });

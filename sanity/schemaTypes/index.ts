@@ -23,11 +23,12 @@ export const project = defineType({
   fields: [
     defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
     defineField({ name: "order", title: "Display order", type: "number", initialValue: 1, description: "Lower numbers appear first.", validation: (rule) => rule.required().integer().min(0) }),
+    defineField({ name: "cover", title: "Cover image", type: "imageSlide", description: "Project thumbnail. This can be different from the carousel images.", validation: (rule) => rule.required() }),
     paragraphs,
     defineField({ name: "slides", type: "array", description: "Drag to reorder. Images and videos can be mixed in the same carousel.", of: [defineArrayMember({ type: "imageSlide" }), defineArrayMember({ type: "videoSlide" })], validation: (rule) => rule.required().min(1) }),
   ],
   orderings: [{ title: "Display order", name: "displayOrder", by: [{ field: "order", direction: "asc" }] }],
-  preview: { select: { title: "title", order: "order" }, prepare: ({ title, order }) => ({ title, subtitle: `Order: ${order ?? "unset"}` }) },
+  preview: { select: { title: "title", order: "order", media: "cover" }, prepare: ({ title, order, media }) => ({ title, media, subtitle: `Order: ${order ?? "unset"}` }) },
 });
 export const siteSettings = defineType({
   name: "siteSettings", title: "Site Settings", type: "document",

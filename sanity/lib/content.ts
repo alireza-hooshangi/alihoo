@@ -8,7 +8,7 @@ import { bio, contact, loaderSlides, projects, type ImageSlide, type Project, ty
 export type SiteContent = { bio: readonly string[]; contact: { studio: string; email: string }; loaderSlides: readonly ImageSlide[] };
 type CmsImage = { _type: "imageSlide"; alt: string; asset?: { _ref: string } };
 type CmsVideo = { _type: "videoSlide"; alt: string; url?: string; poster?: CmsImage };
-type CmsProject = { _id: string; title: string; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
+type CmsProject = { _id: string; title: string; cover?: CmsImage; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
 type CmsSettings = { bio?: string[]; email?: string; studioUrl?: string; loaderImages?: CmsImage[] };
 const client = isSanityConfigured ? createClient({ projectId, dataset, apiVersion, useCdn: false, perspective: "published", token: process.env.SANITY_API_READ_TOKEN }) : null;
 const imageBuilder = client ? createImageUrlBuilder(client) : null;
@@ -34,10 +34,12 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
 });
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!client) return projects;
-  const documents = await client.fetch<CmsProject[]>('*[_type == "project"] | order(order asc, _createdAt asc){_id,title,paragraphs,slides[]{...,"url":file.asset->url}}', {}, { next: { revalidate: 30 } });
+  const documents = await client.fetch<CmsProject[]>('*[_type == "project"] | order(order asc, _createdAt asc){_id,title,cover,paragraphs,slides[]{...,"url":file.asset->url}}', {}, { next: { revalidate: 30 } });
   return documents.flatMap((document) => {
     const slides = (document.slides ?? []).map(toSlide).filter((slide): slide is Slide => slide !== null);
     if (!slides.length) return [];
-    return [{ id: document._id, name: document.title, paragraphs: document.paragraphs ?? [], slides: slides as [Slide, ...Slide[]] }];
+    const coverSrc = imageUrl(document.cover);
+    const cover: ImageSlide | undefined = coverSrc ? { src: coverSrc, alt: document.cover?.alt || document.title } : undefined;
+    return [{ cover, id: document._id, name: document.title, paragraphs: document.paragraphs ?? [], slides: slides as [Slide, ...Slide[]] }];
   });
 });
