@@ -11,7 +11,9 @@ import type { SiteContent } from "@/sanity/lib/content";
 const themes = ["Calm", "Mono", "Focus"] as const;
 type Theme = (typeof themes)[number];
 export default function Portfolio({ children, content }: { children: ReactNode; content: SiteContent }) {
-  const showProjects = usePathname() === "/projects";
+  const pathname = usePathname();
+  const showProjects = pathname.startsWith("/projects");
+  const isProjectDetail = pathname.startsWith("/projects/");
   const [theme, setTheme] = useState<Theme>("Calm");
   const mainRef = useRef<HTMLElement>(null);
   const previousView = useRef(showProjects);
@@ -45,7 +47,7 @@ export default function Portfolio({ children, content }: { children: ReactNode; 
         {!showProjects && <Bio content={content} />}
       </header>
       <main id="main" ref={mainRef} tabIndex={-1} className={showProjects ? "projects-view" : "home-view"}>
-        <h1 className="sr-only">{showProjects ? "Alihoo projects" : "Alihoo — independent projects and experiments"}</h1>
+        {!isProjectDetail && <h1 className="sr-only">{showProjects ? "Alihoo projects" : "Alihoo — independent projects and experiments"}</h1>}
         {children}
       </main>
     </div>
@@ -112,7 +114,7 @@ export function Projects({ projects }: { projects: readonly Project[] }) {
   </div>;
 }
 
-function ProjectSection({ project, first }: { project: Project; first: boolean }) {
+export function ProjectSection({ project, first }: { project: Project; first: boolean }) {
   const [slideIndex, setSlideIndex] = useState(0);
   const slide = project.slides[slideIndex];
   const paginationId = `${project.id}-pagination`;
@@ -138,6 +140,7 @@ function ProjectSection({ project, first }: { project: Project; first: boolean }
         <span className="sr-only">Image {slideIndex + 1} of {project.slides.length}</span>
       </p>
       <div className="project-description">
+        <Link className="project-page-link" href={`/projects/${encodeURIComponent(project.slug || project.id)}`}>{project.name}</Link>
         {project.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
       </div>
     </div>

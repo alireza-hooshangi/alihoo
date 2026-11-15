@@ -124,3 +124,6 @@ main:focus { outline: none; }
   .pixel-reveal-image { visibility: visible !important; }
   .pixel-reveal-canvas { display: none; }
 }
+
+.project-page-link { display: inline-block; margin-bottom: 1em; text-underline-offset: 0.15em; }
+.project-back-link { display: inline-block; margin: 24px 16px; text-underline-offset: 0.15em; }

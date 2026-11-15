@@ -1,4 +1,4 @@
-import { getSiteContent } from "@/sanity/lib/content";
+import { getSiteContent, getSeoSettings } from "@/sanity/lib/content";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
@@ -12,10 +12,12 @@ const neueMontreal = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Alihoo — Independent projects & experiments",
-  description: "Independent projects, experiments, and product concepts by Alihoo. Creative Director at Hooman Studio, working across brand, interface, and systems.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSeoSettings();
+  return { metadataBase: new URL(settings.siteUrl), applicationName: settings.siteName,
+    icons: { icon: settings.favicon, apple: settings.appleIcon },
+    verification: { google: settings.googleVerification } };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const content = await getSiteContent();

@@ -4,6 +4,9 @@ export type VideoSlide = { type: "video"; src: string; alt: string; poster?: str
 export type Slide = ImageSlide | VideoSlide;
 export type Project = {
   id: string;
+  slug?: string;
+  updatedAt?: string;
+  seo?: { title?: string; description?: string; image?: ImageSlide; noIndex?: boolean };
   name: string;
   cover?: ImageSlide;
   slides: readonly [Slide, ...Slide[]];

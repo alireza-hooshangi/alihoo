@@ -10,7 +10,7 @@ import { orderProjects, isSafeBioHref } from "./presentation";
 export type SiteContent = { bio: readonly string[]; links: readonly BioLink[]; loaderSlides: readonly ImageSlide[] };
 type CmsImage = { _type: "imageSlide"; alt: string; asset?: { _ref: string } };
 type CmsVideo = { _type: "videoSlide"; alt: string; url?: string; poster?: CmsImage };
-type CmsProject = { _id: string; title: string; cover?: CmsImage; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
+type CmsProject = { _id: string; _updatedAt?: string; slug?: { current: string }; seo?: { title?: string; description?: string; image?: CmsImage; noIndex?: boolean }; title: string; cover?: CmsImage; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
 type CmsBio = { paragraphs?: string[]; links?: BioLink[] };
 type CmsSettings = { bio?: string[]; email?: string; studioUrl?: string; loaderImages?: CmsImage[] };
 const client = isSanityConfigured ? createClient({ projectId, dataset, apiVersion, useCdn: false, perspective: "published", token: process.env.SANITY_API_READ_TOKEN }) : null;
@@ -40,12 +40,24 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!client) return projects;
   const result = await client.fetch<{ projects: CmsProject[]; order: { _ref: string }[] | null }>(
-    '{"projects":*[_type == "project"] | order(order asc, _createdAt asc){_id,title,cover,paragraphs,slides[]{...,"url":file.asset->url}},"order":*[_id == "projectOrder"][0].projects}', {}, { next: { revalidate: 30 } });
+    '{"projects":*[_type == "project"] | order(order asc, _createdAt asc){_id,_updatedAt,slug,seo,title,cover,paragraphs,slides[]{...,"url":file.asset->url}},"order":*[_id == "projectOrder"][0].projects}', {}, { next: { revalidate: 30 } });
   return orderProjects(result.projects, result.order ?? []).flatMap((document) => {
     const slides = (document.slides ?? []).map(toSlide).filter((slide): slide is Slide => slide !== null);
     if (!slides.length) return [];
     const coverSrc = imageUrl(document.cover);
     const cover: ImageSlide | undefined = coverSrc ? { src: coverSrc, alt: document.cover?.alt || document.title } : undefined;
-    return [{ cover, id: document._id, name: document.title, paragraphs: document.paragraphs ?? [], slides: slides as [Slide, ...Slide[]] }];
+    return [{ slug: document.slug?.current || document._id, updatedAt: document._updatedAt, seo: { ...document.seo, image: imageUrl(document.seo?.image) ? { src: imageUrl(document.seo?.image)!, alt: document.seo?.image?.alt || document.title } : undefined }, cover, id: document._id, name: document.title, paragraphs: document.paragraphs ?? [], slides: slides as [Slide, ...Slide[]] }];
   });
+});
+
+export const getSeoSettings = cache(async () => {
+  const settings = client ? await client.fetch<{
+    siteName?: string; siteUrl?: string; googleVerification?: string;
+    favicon?: CmsImage; appleIcon?: CmsImage;
+    seo?: NonNullable<CmsProject["seo"]>; projectsSeo?: NonNullable<CmsProject["seo"]>;
+  } | null>('*[_id == "siteSettings"][0]{siteName,siteUrl,googleVerification,favicon,appleIcon,seo,projectsSeo}', {}, { next: { revalidate: 30 } }) : null;
+  const convertSeo = (value?: NonNullable<CmsProject["seo"]>) => ({ ...value, image: imageUrl(value?.image, 1200) ? { src: imageUrl(value?.image, 1200)!, alt: value?.image?.alt || settings?.siteName || "Alihoo" } : undefined });
+  return { siteName: settings?.siteName || "Alihoo", siteUrl: settings?.siteUrl || "https://alihoo-chi.vercel.app", googleVerification: settings?.googleVerification,
+    favicon: imageUrl(settings?.favicon, 512) || "/favicon.ico", appleIcon: imageUrl(settings?.appleIcon || settings?.favicon, 180) || "/apple-touch-icon.png",
+    seo: convertSeo(settings?.seo), projectsSeo: convertSeo(settings?.projectsSeo) };
 });

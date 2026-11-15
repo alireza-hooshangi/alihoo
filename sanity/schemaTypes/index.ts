@@ -18,10 +18,21 @@ export const videoSlide = defineType({
   ],
   preview: { select: { title: "alt", media: "poster" }, prepare: ({ title, media }) => ({ title: title || "Video", subtitle: "Muted looping video", media }) },
 });
+export const seo = defineType({
+  name: "seo", title: "SEO and sharing", type: "object",
+  fields: [
+    defineField({ name: "title", title: "Search title", type: "string", description: "Leave blank to use the page title.", validation: rule => rule.max(70).warning("Aim for a concise, descriptive title.") }),
+    defineField({ name: "description", title: "Search description", type: "text", rows: 3, validation: rule => rule.max(170).warning("Search engines may shorten long descriptions.") }),
+    defineField({ name: "image", title: "Social sharing image", type: "image", options: { hotspot: true }, fields: [altField], description: "Recommended: 1200 × 630px. Projects fall back to their cover image." }),
+    defineField({ name: "noIndex", title: "Hide from search engines", type: "boolean", initialValue: false, description: "The page remains publicly accessible, but asks search engines not to index it." }),
+  ],
+});
 export const project = defineType({
   name: "project", title: "Project", type: "document",
   fields: [
     defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
+    defineField({ name: "slug", title: "Page URL", type: "slug", options: { source: "title", maxLength: 96 }, validation: rule => rule.required().custom(value => !value?.current || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.current) ? true : "Use lowercase letters, numbers, and hyphens.") }),
+    defineField({ name: "seo", type: "seo" }),
     defineField({ name: "order", title: "Legacy display order", type: "number", hidden: true, readOnly: true }),
     defineField({ name: "cover", title: "Cover image", type: "imageSlide", description: "Project thumbnail. This can be different from the carousel images.", validation: (rule) => rule.required() }),
     paragraphs,
@@ -32,6 +43,13 @@ export const project = defineType({
 export const siteSettings = defineType({
   name: "siteSettings", title: "Site Settings", type: "document",
   fields: [
+    defineField({ name: "siteName", title: "Site name", type: "string", initialValue: "Alihoo" }),
+    defineField({ name: "siteUrl", title: "Public website URL", type: "url", description: "Your primary deployed domain, without a path. Used for canonical links and the sitemap.", validation: rule => rule.uri({ scheme: ["https"] }).custom(value => { if (!value) return true; try { const url = new URL(value); return url.pathname === "/" && !url.search && !url.hash ? true : "Enter only the domain, without a path, query, or fragment."; } catch { return "Enter a valid URL."; } }) }),
+    defineField({ name: "seo", title: "Homepage SEO and defaults", type: "seo" }),
+    defineField({ name: "projectsSeo", title: "Projects page SEO", type: "seo" }),
+    defineField({ name: "favicon", title: "Favicon", type: "image", description: "Upload a square PNG, ideally 512 × 512px." }),
+    defineField({ name: "appleIcon", title: "Apple touch icon", type: "image", description: "Square PNG, ideally 180 × 180px. Falls back to your favicon." }),
+    defineField({ name: "googleVerification", title: "Google Search Console verification", type: "string", description: "Paste only the verification code, not the full HTML tag." }),
     defineField({ ...paragraphs, name: "bio", title: "Legacy bio", hidden: true, readOnly: true, validation: undefined }),
     defineField({ name: "email", title: "Legacy email", type: "string", hidden: true, readOnly: true }),
     defineField({ name: "studioUrl", title: "Legacy studio link", type: "url", hidden: true, readOnly: true }),
@@ -67,4 +85,4 @@ export const bioPage = defineType({
   ],
   preview: { prepare: () => ({ title: "Bio" }) },
 });
-export const schemaTypes = [imageSlide, videoSlide, project, siteSettings, projectOrder, bioLink, bioPage];
+export const schemaTypes = [seo, imageSlide, videoSlide, project, siteSettings, projectOrder, bioLink, bioPage];
