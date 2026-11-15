@@ -41,8 +41,9 @@ html, body, .portfolio, .pill, .projects-loader, .carousel, .video-toggle, .skip
     outline-color var(--theme-duration) var(--theme-easing);
 }
 * { box-sizing: border-box; }
-html { background: var(--background-primary); }
+html { background: var(--background-primary); overscroll-behavior-y: none; }
 body {
+  overscroll-behavior-y: none;
   background: var(--background-primary);
   margin: 0;
   font-family: var(--font-neue-montreal), Arial, sans-serif;
