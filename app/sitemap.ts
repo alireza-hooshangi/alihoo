@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: new URL("/", settings.siteUrl).href },
     ...(!settings.projectsSeo.noIndex ? [{ url: new URL("/projects", settings.siteUrl).href }] : []),
     ...projects.filter(project => !project.seo?.noIndex).map(project => ({
-      url: new URL(`/projects/${encodeURIComponent(project.slug || project.id)}`, settings.siteUrl).href,
+      url: new URL(`/${encodeURIComponent(project.slug || project.id)}`, settings.siteUrl).href,
       lastModified: project.updatedAt,
     })),
   ];

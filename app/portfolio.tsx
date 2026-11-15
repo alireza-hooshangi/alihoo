@@ -12,8 +12,7 @@ const themes = ["Calm", "Mono", "Focus"] as const;
 type Theme = (typeof themes)[number];
 export default function Portfolio({ children, content }: { children: ReactNode; content: SiteContent }) {
   const pathname = usePathname();
-  const showProjects = pathname.startsWith("/projects");
-  const isProjectDetail = pathname.startsWith("/projects/");
+  const showProjects = pathname !== "/";
   const [theme, setTheme] = useState<Theme>("Calm");
   const mainRef = useRef<HTMLElement>(null);
   const previousView = useRef(showProjects);
@@ -54,7 +53,7 @@ export default function Portfolio({ children, content }: { children: ReactNode; 
         {!showProjects && <Bio content={content} />}
       </header>
       <main id="main" ref={mainRef} tabIndex={-1} className={showProjects ? "projects-view" : "home-view"}>
-        {!isProjectDetail && <h1 className="sr-only">{showProjects ? "Alihoo projects" : "Alihoo — independent projects and experiments"}</h1>}
+        <h1 className="sr-only">{showProjects ? "Alihoo projects" : "Alihoo — independent projects and experiments"}</h1>
         {children}
       </main>
     </div>
@@ -115,8 +114,43 @@ export function ProjectsLoader({ slides: loaderSlides }: { slides: readonly Imag
   </Link>;
 }
 
-export function Projects({ projects }: { projects: readonly Project[] }) {
-  return <div className="projects">
+export function Projects({ projects, initialProjectId }: { projects: readonly Project[]; initialProjectId?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const sections = Array.from(container.querySelectorAll<HTMLElement>(".project-section"));
+    let frame = 0;
+    function updateUrl() {
+      frame = 0;
+      let activeIndex = -1;
+      for (let index = 0; index < sections.length; index++) {
+        if (sections[index].getBoundingClientRect().top <= 1) activeIndex = index;
+        else break;
+      }
+      const project = projects[activeIndex];
+      const path = project ? `/${encodeURIComponent(project.slug || project.id)}` : "/projects";
+      if (window.location.pathname !== path) window.history.replaceState(null, "", path);
+    }
+    function scheduleUpdate() {
+      if (!frame) frame = requestAnimationFrame(updateUrl);
+    }
+    frame = requestAnimationFrame(() => {
+      if (initialProjectId) sections.find(section => section.id === initialProjectId)?.scrollIntoView({ behavior: "instant", block: "start" });
+      updateUrl();
+    });
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    sections.forEach(section => resizeObserver.observe(section));
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      resizeObserver.disconnect();
+    };
+  }, [projects, initialProjectId]);
+  return <div className="projects" ref={containerRef}>
     {projects.map((project, index) => <ProjectSection key={project.id} project={project} first={index === 0} />)}
   </div>;
 }

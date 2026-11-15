@@ -1,0 +1,21 @@
+import { notFound } from "next/navigation";
+import { getProjects, getSeoSettings } from "@/sanity/lib/content";
+import { pageMetadata } from "@/sanity/lib/seo";
+import { Projects } from "@/app/portfolio";
+
+type Props = { params: Promise<{ slug: string }> };
+async function findProject(params: Props["params"]) {
+  const { slug } = await params;
+  const project = (await getProjects()).find(project => (project.slug || project.id) === slug);
+  if (!project) notFound();
+  return project;
+}
+export async function generateMetadata({ params }: Props) {
+  const [project, settings] = await Promise.all([findProject(params), getSeoSettings()]);
+  return pageMetadata(settings, `/${encodeURIComponent(project.slug || project.id)}`, `${project.name} — ${settings.siteName}`, project.paragraphs.join(" "), project.seo, project.cover);
+}
+export default async function ProjectPage({ params }: Props) {
+  const project = await findProject(params);
+  const projects = await getProjects();
+  return <Projects projects={projects} initialProjectId={project.id} />;
+}
