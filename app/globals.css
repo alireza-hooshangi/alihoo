@@ -19,11 +19,11 @@
 }
 [data-theme="Focus"] {
   color-scheme: dark;
-  --background-primary: #000;
+  --background-primary: #171717;
   --background-secondary: #a1a1a1;
-  --background-elevated: #262626;
+  --background-elevated: #333333;
   --foreground-primary: #737373;
-  --foreground-secondary: #000;
+  --foreground-secondary: #171717;
   --foreground-elevated: #a1a1a1;
 }
 :root {
