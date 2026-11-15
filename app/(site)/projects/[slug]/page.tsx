@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getProjects, getSeoSettings } from "@/sanity/lib/content";
 import { pageMetadata } from "@/sanity/lib/seo";
 import { ProjectSection } from "@/app/portfolio";
@@ -20,6 +19,5 @@ export default async function ProjectPage({ params }: Props) {
   return <>
     <h1 className="sr-only">{project.name}</h1>
     <div className="projects"><ProjectSection project={project} first /></div>
-    <Link className="project-back-link" href="/projects">All projects</Link>
   </>;
 }

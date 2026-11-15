@@ -147,7 +147,6 @@ export function ProjectSection({ project, first }: { project: Project; first: bo
         <span className="sr-only">Image {slideIndex + 1} of {project.slides.length}</span>
       </p>
       <div className="project-description">
-        <Link className="project-page-link" href={`/projects/${encodeURIComponent(project.slug || project.id)}`}>{project.name}</Link>
         {project.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
       </div>
     </div>
