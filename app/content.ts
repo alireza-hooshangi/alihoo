@@ -1,5 +1,5 @@
 // Replace placeholder copy and slide lists here without changing the layout.
-export type ImageSlide = { type?: "image"; src: string; alt: string };
+export type ImageSlide = { type?: "image"; src: string; alt: string; preview?: string };
 export type VideoSlide = { type: "video"; src: string; alt: string; poster?: string };
 export type Slide = ImageSlide | VideoSlide;
 export type Project = {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import localPreviews from "./image-previews.json";
 import type { ImageSlide } from "./content";
 
 const pixelSteps = [8, 16, 32, 48, 96];
@@ -10,6 +11,7 @@ const stepMs = 100;
 const revealedImages = new Set<string>();
 
 export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eager: boolean }) {
+  const preview = slide.preview || localPreviews[slide.src as keyof typeof localPreviews];
   const imageRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -24,6 +26,7 @@ export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eage
     let started = false;
     const finish = () => {
       clearTimeout(timer);
+      revealedImages.add(slide.src);
       image.style.visibility = "visible";
       canvas.style.visibility = "hidden";
     };
@@ -36,7 +39,6 @@ export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eage
       started = true;
       observer.disconnect();
       if (revealedImages.has(slide.src)) { finish(); return; }
-      revealedImages.add(slide.src);
       if (!context || preference.matches) { finish(); return; }
       let step = 0;
       const draw = () => {
@@ -65,6 +67,8 @@ export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eage
   }, [loaded, slide.src]);
 
   return <>
+    {preview && <Image src={preview} alt="" aria-hidden="true" fill unoptimized
+      className="project-image pixel-preview" />}
     <Image ref={imageRef} src={slide.src} alt={slide.alt} fill
       sizes="(min-width: 1100px) 60vw, 100vw" loading={eager ? "eager" : "lazy"}
       className="project-image pixel-reveal-image" onLoad={(event) => {

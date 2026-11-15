@@ -8,7 +8,7 @@ import { bio, contact, bioLinks, loaderSlides, projects, type BioLink, type Imag
 import { orderProjects, isSafeBioHref } from "./presentation";
 
 export type SiteContent = { bio: readonly string[]; links: readonly BioLink[]; loaderSlides: readonly ImageSlide[] };
-type CmsImage = { _type: "imageSlide"; alt: string; asset?: { _ref: string } };
+type CmsImage = { _type: "imageSlide"; alt: string; preview?: string; asset?: { _ref: string } };
 type CmsVideo = { _type: "videoSlide"; alt: string; url?: string; poster?: CmsImage };
 type CmsProject = { _id: string; _updatedAt?: string; slug?: { current: string }; seo?: { title?: string; description?: string; image?: CmsImage; noIndex?: boolean }; title: string; cover?: CmsImage; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
 type CmsBio = { paragraphs?: string[]; links?: BioLink[] };
@@ -21,7 +21,7 @@ function imageUrl(image?: CmsImage, width = 2400) {
 function toSlide(slide: CmsImage | CmsVideo): Slide | null {
   if (slide._type === "videoSlide") return slide.url ? { type: "video", src: slide.url, alt: slide.alt || "Project video", poster: imageUrl(slide.poster) } : null;
   const src = imageUrl(slide);
-  return src ? { type: "image", src, alt: slide.alt || "Project image" } : null;
+  return src ? { type: "image", src, preview: slide.preview, alt: slide.alt || "Project image" } : null;
 }
 export const getSiteContent = cache(async (): Promise<SiteContent> => {
   if (!client) return { bio, links: bioLinks, loaderSlides };
@@ -40,7 +40,7 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!client) return projects;
   const result = await client.fetch<{ projects: CmsProject[]; order: { _ref: string }[] | null }>(
-    '{"projects":*[_type == "project"] | order(order asc, _createdAt asc){_id,_updatedAt,slug,seo,title,cover,paragraphs,slides[]{...,"url":file.asset->url}},"order":*[_id == "projectOrder"][0].projects}', {}, { next: { revalidate: 30 } });
+    '{"projects":*[_type == "project"] | order(order asc, _createdAt asc){_id,_updatedAt,slug,seo,title,cover,paragraphs,slides[]{...,"preview":asset->metadata.lqip,"url":file.asset->url}},"order":*[_id == "projectOrder"][0].projects}', {}, { next: { revalidate: 30 } });
   return orderProjects(result.projects, result.order ?? []).flatMap((document) => {
     const slides = (document.slides ?? []).map(toSlide).filter((slide): slide is Slide => slide !== null);
     if (!slides.length) return [];
