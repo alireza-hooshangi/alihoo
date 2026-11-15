@@ -15,8 +15,10 @@ Website: http://localhost:3000 · Content editor: http://localhost:3000/studio
 
 Sign in to the Studio with the account that owns the Alihoo Sanity project.
 
-- **Projects:** choose a cover image, edit descriptions, set display order (lower numbers first), and upload image or video slides. Drag slides to reorder them. Video slides accept MP4/WebM and a poster image.
-- **Site Settings:** edit the homepage bio, contact email, studio link, and the homepage loader image sequence.
+- **Projects:** choose a cover image, edit descriptions, and upload image or video slides. Drag slides to reorder them. Video slides accept MP4/WebM and a poster image.
+- **Project order:** add project references and drag to reorder the Projects page. Published projects omitted from this list appear afterward; unpublish a project to hide it.
+- **Bio:** edit paragraphs and add, remove, or reorder links. Each link has a label, optional caption, destination (https/http/mailto/tel), and a new-tab option.
+- **Site Settings:** edit the homepage loader image sequence. Its ordering remains independent of the Projects page.
 - Click **Publish** to make changes available to the website. Draft edits are not shown publicly. Published content uses a 30-second revalidation interval; reload the website after publishing. A stale request can trigger background refresh, so a further reload may be needed. No site rebuild is required.
 
 Your existing project is `yqmj6h2h`, dataset `production`. The five original placeholder projects and their images have been imported. The public dataset is read on the server; editing requires Sanity authentication.
@@ -56,3 +58,7 @@ Theme values and responsive composition are in `app/globals.css`. Homepage bio t
 Source design: https://www.figma.com/design/l4sQOEy5fm4PlSK2ZcZbYY/Alihoo
 
 Project covers are independent of carousel order and appear as project thumbnails in Studio. Existing projects start with their first image as the cover. Run `pnpm exec sanity exec scripts/backfill-project-covers.ts --with-user-token` to fill missing covers safely; existing covers are preserved.
+
+To initialize Bio and Project order for an older dataset, run `pnpm exec sanity exec scripts/migrate-content-pages.ts --with-user-token`. It copies published and draft bio content separately and does not overwrite existing destination documents. Legacy fields remain hidden for compatibility.
+
+Content ordering and link-safety checks: `node --experimental-strip-types --test tests/content-presentation.test.mjs`.

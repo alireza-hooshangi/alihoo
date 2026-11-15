@@ -52,15 +52,13 @@ export default function Portfolio({ children, content }: { children: ReactNode; 
   );
 }
 
-function Bio({ content: { bio, contact } }: { content: SiteContent }) {
+function Bio({ content: { bio, links } }: { content: SiteContent }) {
   return <div className="bio" data-figma-node="7194:56">
     {bio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-    <a className="bio-link" href={contact.studio} target="_blank" rel="noopener noreferrer">
-      <span>Hooman Studio</span><span className="secondary-copy">Real Work</span>
-    </a>
-    {contact.email ? <a className="bio-link" href={`mailto:${contact.email}`}>
-      <span>Email</span><span className="secondary-copy">Say hello</span>
-    </a> : <div className="bio-link"><span>Email</span><span className="secondary-copy">Say hello</span></div>}
+    {links.map((link) => <a key={link._key} className="bio-link" href={link.href}
+      target={link.newTab ? "_blank" : undefined} rel={link.newTab ? "noopener noreferrer" : undefined}>
+      <span>{link.label}</span>{link.caption && <span className="secondary-copy">{link.caption}</span>}
+    </a>)}
   </div>;
 }
 

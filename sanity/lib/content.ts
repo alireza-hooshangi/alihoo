@@ -3,12 +3,15 @@ import { cache } from "react";
 import { createClient } from "next-sanity";
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { apiVersion, dataset, isSanityConfigured, projectId } from "../env";
-import { bio, contact, loaderSlides, projects, type ImageSlide, type Project, type Slide } from "@/app/content";
+import { bio, contact, bioLinks, loaderSlides, projects, type BioLink, type ImageSlide, type Project, type Slide } from "@/app/content";
 
-export type SiteContent = { bio: readonly string[]; contact: { studio: string; email: string }; loaderSlides: readonly ImageSlide[] };
+import { orderProjects, isSafeBioHref } from "./presentation";
+
+export type SiteContent = { bio: readonly string[]; links: readonly BioLink[]; loaderSlides: readonly ImageSlide[] };
 type CmsImage = { _type: "imageSlide"; alt: string; asset?: { _ref: string } };
 type CmsVideo = { _type: "videoSlide"; alt: string; url?: string; poster?: CmsImage };
 type CmsProject = { _id: string; title: string; cover?: CmsImage; paragraphs: string[]; slides: (CmsImage | CmsVideo)[] };
+type CmsBio = { paragraphs?: string[]; links?: BioLink[] };
 type CmsSettings = { bio?: string[]; email?: string; studioUrl?: string; loaderImages?: CmsImage[] };
 const client = isSanityConfigured ? createClient({ projectId, dataset, apiVersion, useCdn: false, perspective: "published", token: process.env.SANITY_API_READ_TOKEN }) : null;
 const imageBuilder = client ? createImageUrlBuilder(client) : null;
@@ -21,11 +24,13 @@ function toSlide(slide: CmsImage | CmsVideo): Slide | null {
   return src ? { type: "image", src, alt: slide.alt || "Project image" } : null;
 }
 export const getSiteContent = cache(async (): Promise<SiteContent> => {
-  if (!client) return { bio, contact, loaderSlides };
-  const settings = await client.fetch<CmsSettings | null>('*[_type == "siteSettings" && _id == "siteSettings"][0]{bio,email,studioUrl,loaderImages}', {}, { next: { revalidate: 30 } });
+  if (!client) return { bio, links: bioLinks, loaderSlides };
+  const { settings, profile } = await client.fetch<{ settings: CmsSettings | null; profile: CmsBio | null }>(
+    '{"settings":*[_id == "siteSettings"][0]{bio,email,studioUrl,loaderImages},"profile":*[_id == "bio"][0]{paragraphs,links}}', {}, { next: { revalidate: 30 } });
+  const legacyLinks = bioLinks.map((link) => ({ ...link, href: link._key === "email" ? `mailto:${settings?.email ?? contact.email}` : settings?.studioUrl ?? contact.studio }));
   return {
-    bio: settings?.bio ?? bio,
-    contact: { studio: settings?.studioUrl ?? contact.studio, email: settings?.email ?? contact.email },
+    bio: profile ? profile.paragraphs ?? [] : settings?.bio ?? bio,
+    links: (profile ? profile.links ?? [] : legacyLinks).filter((link) => link.label && isSafeBioHref(link.href)),
     loaderSlides: settings?.loaderImages?.flatMap((image) => {
       const src = imageUrl(image, 160);
       return src ? [{ src, alt: image.alt || "Project preview" }] : [];
@@ -34,8 +39,9 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
 });
 export const getProjects = cache(async (): Promise<Project[]> => {
   if (!client) return projects;
-  const documents = await client.fetch<CmsProject[]>('*[_type == "project"] | order(order asc, _createdAt asc){_id,title,cover,paragraphs,slides[]{...,"url":file.asset->url}}', {}, { next: { revalidate: 30 } });
-  return documents.flatMap((document) => {
+  const result = await client.fetch<{ projects: CmsProject[]; order: { _ref: string }[] | null }>(
+    '{"projects":*[_type == "project"] | order(order asc, _createdAt asc){_id,title,cover,paragraphs,slides[]{...,"url":file.asset->url}},"order":*[_id == "projectOrder"][0].projects}', {}, { next: { revalidate: 30 } });
+  return orderProjects(result.projects, result.order ?? []).flatMap((document) => {
     const slides = (document.slides ?? []).map(toSlide).filter((slide): slide is Slide => slide !== null);
     if (!slides.length) return [];
     const coverSrc = imageUrl(document.cover);

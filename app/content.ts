@@ -40,3 +40,9 @@ export const projects: Project[] = images.map((image, index) => ({
   slides: [image, ...images.slice(index + 1), ...images.slice(0, index)],
   paragraphs: bio,
 }));
+
+export type BioLink = { _key: string; label: string; caption?: string; href: string; newTab?: boolean };
+export const bioLinks: BioLink[] = [
+  { _key: "studio", label: "Hooman Studio", caption: "Real Work", href: contact.studio, newTab: true },
+  { _key: "email", label: "Email", caption: "Say hello", href: `mailto:${contact.email}`, newTab: false },
+];
