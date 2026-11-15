@@ -53,7 +53,7 @@ export const siteSettings = defineType({
     defineField({ ...paragraphs, name: "bio", title: "Legacy bio", hidden: true, readOnly: true, validation: undefined }),
     defineField({ name: "email", title: "Legacy email", type: "string", hidden: true, readOnly: true }),
     defineField({ name: "studioUrl", title: "Legacy studio link", type: "url", hidden: true, readOnly: true }),
-    defineField({ name: "loaderImages", title: "Homepage loader images", type: "array", description: "Drag to set the frame sequence. The sequence repeats every five seconds.", of: [defineArrayMember({ type: "imageSlide" })], validation: (rule) => rule.required().min(1).max(20) }),
+    defineField({ name: "loaderImages", title: "Homepage loader images", type: "array", hidden: true, readOnly: true, of: [defineArrayMember({ type: "imageSlide" })] }),
   ],
   preview: { prepare: () => ({ title: "Site Settings" }) },
 });
