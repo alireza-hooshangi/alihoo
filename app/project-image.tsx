@@ -27,7 +27,7 @@ export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eage
     const finish = () => {
       clearTimeout(timer);
       revealedImages.add(slide.src);
-      image.style.visibility = "visible";
+      image.style.opacity = "1";
       canvas.style.visibility = "hidden";
     };
     if (revealedImages.has(slide.src)) {
@@ -72,10 +72,10 @@ export default function ProjectImage({ slide, eager }: { slide: ImageSlide; eage
     <Image ref={imageRef} src={slide.src} alt={slide.alt} fill
       sizes="(min-width: 1100px) 60vw, 100vw" loading={eager ? "eager" : "lazy"}
       className="project-image pixel-reveal-image" onLoad={(event) => {
-        if (revealedImages.has(slide.src)) event.currentTarget.style.visibility = "visible";
+        if (revealedImages.has(slide.src)) event.currentTarget.style.opacity = "1";
         setLoaded(true);
       }}
-      onError={() => { if (imageRef.current) imageRef.current.style.visibility = "visible"; }} />
+      onError={() => { if (imageRef.current) imageRef.current.style.opacity = "1"; }} />
     <canvas ref={canvasRef} className="project-image pixel-reveal-canvas" aria-hidden="true" />
   </>;
 }

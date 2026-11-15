@@ -159,6 +159,7 @@ export function ProjectSection({ project, first }: { project: Project; first: bo
   const [slideIndex, setSlideIndex] = useState(0);
   const slide = project.slides[slideIndex];
   const paginationId = `${project.id}-pagination`;
+  const press = useRef<{ x: number; y: number; time: number } | null>(null);
   function move(direction: number) {
     setSlideIndex((current) => (current + direction + project.slides.length) % project.slides.length);
   }
@@ -169,7 +170,21 @@ export function ProjectSection({ project, first }: { project: Project; first: bo
     }
   }
   return <section className={`project-section${first ? " project-section--first" : ""}`} id={project.id} aria-label={project.name}>
-    <div className="carousel" role="group" aria-roledescription="carousel" aria-label={`${project.name} images`} onKeyDown={handleKey}>
+    <div className="carousel" role="group" aria-roledescription="carousel" aria-label={`${project.name} images`} onKeyDown={handleKey}
+      onPointerDown={(event) => {
+        press.current = { x: event.clientX, y: event.clientY, time: performance.now() };
+      }}
+      onPointerCancel={() => { press.current = null; }}
+      onContextMenu={() => { press.current = null; }}
+      onClick={(event) => {
+        if (!(event.target instanceof HTMLImageElement || event.target instanceof HTMLVideoElement)) return;
+        const start = press.current;
+        press.current = null;
+        // A long press opens the browser's image menu; only short taps advance.
+        if (!start || performance.now() - start.time > 350 || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        move(event.clientX < bounds.left + bounds.width / 2 ? -1 : 1);
+      }}>
       {slide.type === "video" ? <ProjectVideo key={slide.src} slide={slide} /> :
         <ProjectImage key={slide.src} slide={slide} eager={first} />}
       <button type="button" className="carousel-half carousel-half--previous" aria-label={`Previous image for ${project.name}`} aria-describedby={paginationId} onClick={() => move(-1)} />
