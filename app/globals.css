@@ -1,5 +1,6 @@
 /* Semantic colors and responsive values come from the Alihoo Figma variables. */
 :root, [data-theme="Calm"] {
+  color-scheme: light;
   --background-primary: #a1a1a1;
   --background-secondary: #e8e8e3;
   --background-elevated: #737373;
@@ -8,6 +9,7 @@
   --foreground-elevated: #e8e8e3;
 }
 [data-theme="Mono"] {
+  color-scheme: dark;
   --background-primary: #5b4f4b;
   --background-secondary: #aba09c;
   --background-elevated: #2b2422;
@@ -16,6 +18,7 @@
   --foreground-elevated: #aba09c;
 }
 [data-theme="Focus"] {
+  color-scheme: dark;
   --background-primary: #000;
   --background-secondary: #a1a1a1;
   --background-elevated: #262626;
@@ -33,6 +36,7 @@
 * { box-sizing: border-box; }
 html { background: var(--background-primary); }
 body {
+  background: var(--background-primary);
   margin: 0;
   font-family: var(--font-neue-montreal), Arial, sans-serif;
   font-weight: 500;

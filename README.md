@@ -65,7 +65,7 @@ Content ordering and link-safety checks: `node --experimental-strip-types --test
 
 ### SEO and project URLs
 
-Site Settings contains the public website URL, homepage/default SEO, Projects listing SEO, favicon, Apple touch icon, and Google Search Console verification code. Set the public URL to the primary domain when connecting a custom domain. Upload a square PNG favicon; the existing Alihoo icon is used until one is supplied.
+Site Settings contains the public website URL, homepage/default SEO, Projects listing SEO, favicon, Apple touch icon, and Google Search Console verification code. Set the public URL to the primary domain when connecting a custom domain. Upload an SVG favicon (served directly without raster conversion), or a square PNG. The default is `public/favicon.svg`, exported from Figma component `7214:1222` on the Favicon page, with matching PNG/ICO fallbacks.
 
 Each project has a unique Page URL slug and SEO/sharing fields. `/projects/[slug]` renders that project's existing carousel and description. Search title and description fall back to the project name/content; sharing images fall back to the cover, then the site default. Changing a published slug changes its URL; keep published slugs stable to preserve incoming links.
 

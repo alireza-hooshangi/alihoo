@@ -53,11 +53,12 @@ export const getProjects = cache(async (): Promise<Project[]> => {
 export const getSeoSettings = cache(async () => {
   const settings = client ? await client.fetch<{
     siteName?: string; siteUrl?: string; googleVerification?: string;
-    favicon?: CmsImage; appleIcon?: CmsImage;
+    favicon?: CmsImage; faviconUrl?: string; faviconMimeType?: string; appleIcon?: CmsImage;
     seo?: NonNullable<CmsProject["seo"]>; projectsSeo?: NonNullable<CmsProject["seo"]>;
-  } | null>('*[_id == "siteSettings"][0]{siteName,siteUrl,googleVerification,favicon,appleIcon,seo,projectsSeo}', {}, { next: { revalidate: 30 } }) : null;
+  } | null>('*[_id == "siteSettings"][0]{siteName,siteUrl,googleVerification,favicon,"faviconUrl":favicon.asset->url,"faviconMimeType":favicon.asset->mimeType,appleIcon,seo,projectsSeo}', {}, { next: { revalidate: 30 } }) : null;
   const convertSeo = (value?: NonNullable<CmsProject["seo"]>) => ({ ...value, image: imageUrl(value?.image, 1200) ? { src: imageUrl(value?.image, 1200)!, alt: value?.image?.alt || settings?.siteName || "Alihoo" } : undefined });
   return { siteName: settings?.siteName || "Alihoo", siteUrl: settings?.siteUrl || "https://alihoo-chi.vercel.app", googleVerification: settings?.googleVerification,
-    favicon: imageUrl(settings?.favicon, 512) || "/favicon.ico", appleIcon: imageUrl(settings?.appleIcon || settings?.favicon, 180) || "/apple-touch-icon.png",
+    favicon: settings?.faviconUrl || "/favicon.svg", faviconType: settings?.faviconMimeType || "image/svg+xml",
+    appleIcon: imageUrl(settings?.appleIcon || (settings?.faviconMimeType !== "image/svg+xml" ? settings?.favicon : undefined), 180) || "/apple-touch-icon.png",
     seo: convertSeo(settings?.seo), projectsSeo: convertSeo(settings?.projectsSeo) };
 });

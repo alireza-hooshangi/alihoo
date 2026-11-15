@@ -1,5 +1,5 @@
 import { getSiteContent, getSeoSettings } from "@/sanity/lib/content";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "../globals.css";
 import Portfolio from "../portfolio";
@@ -12,10 +12,12 @@ const neueMontreal = localFont({
   display: "swap",
 });
 
+export const viewport: Viewport = { themeColor: "#a1a1a1" };
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSeoSettings();
   return { metadataBase: new URL(settings.siteUrl), applicationName: settings.siteName,
-    icons: { icon: settings.favicon, apple: settings.appleIcon },
+    icons: { icon: { url: settings.favicon, type: settings.faviconType, ...(settings.faviconType === "image/svg+xml" ? { sizes: "any" } : {}) }, apple: settings.appleIcon },
     verification: { google: settings.googleVerification } };
 }
 

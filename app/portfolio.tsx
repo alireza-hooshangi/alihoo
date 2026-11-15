@@ -18,7 +18,14 @@ export default function Portfolio({ children, content }: { children: ReactNode; 
   const mainRef = useRef<HTMLElement>(null);
   const previousView = useRef(showProjects);
 
-  useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    // Use the same Figma color token as the page, including on route changes.
+    const color = getComputedStyle(root).getPropertyValue("--background-primary").trim();
+    const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeMeta && color) themeMeta.content = color;
+  }, [theme, pathname]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     if (previousView.current !== showProjects) mainRef.current?.focus({ preventScroll: true });
