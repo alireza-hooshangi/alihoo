@@ -120,12 +120,13 @@ main:focus { outline: none; }
 }
 /* Mobile navigation spans the viewport; the bio uses the left text column. */
 @media (max-width: 741px) {
-  :root { --body-size: 14px; --body-line-height: 16px; --loader-size: 64px; --section-gap: 56px; }
-  .navigation, .dynamic-nav--projects .navigation { flex-basis: 100%; justify-content: space-between; font-size: 14px; }
-  .bio { flex-basis: 100%; padding-right: calc(50% + var(--space) / 2); }
-  .project-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .project-description { grid-column: 2; }
-  .projects-loader { border-radius: 10px; }
+  :root { --body-size: 20px; --body-line-height: 20px; --section-gap: 56px; }
+  .navigation, .dynamic-nav--projects .navigation { flex-basis: 100%; justify-content: space-between; font-size: 16px; }
+  .bio { flex-basis: 100%; padding: 14px; gap: 14px; }
+  .bio p { width: calc((100vw - 28px) * 2 / 3); max-width: none; }
+  .bio-link { font-size: 16px; line-height: 16px; }
+  .project-description { gap: 16px; }
+  .projects-loader { top: auto; left: 14px; bottom: 16px; transform: none; border-radius: 10px; }
 }
 @media (max-width: 314px) { .navigation { min-width: 0; flex-wrap: wrap; gap: 0 8px; } }
 @media print {
