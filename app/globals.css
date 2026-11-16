@@ -122,11 +122,11 @@ main:focus { outline: none; }
 @media (max-width: 741px) {
   :root { --body-size: 20px; --body-line-height: 20px; --section-gap: 56px; }
   .navigation, .dynamic-nav--projects .navigation { flex-basis: 100%; justify-content: space-between; font-size: 16px; }
-  .bio { flex-basis: 100%; padding: 14px; gap: 14px; }
-  .bio p { width: calc((100vw - 28px) * 2 / 3); max-width: none; }
-  .bio-link { font-size: 16px; line-height: 16px; }
+  .bio { flex-basis: 100%; padding: 16px; gap: 20px; }
+  .bio p { width: calc((100vw - 32px) * 5 / 6); max-width: none; }
+  .bio-link { font-size: 20px; line-height: 20px; }
   .project-description { gap: 16px; }
-  .projects-loader { top: auto; left: 14px; bottom: 16px; transform: none; border-radius: 10px; }
+  .projects-loader { top: auto; left: 16px; bottom: 16px; transform: none; border-radius: 10px; }
 }
 @media (max-width: 314px) { .navigation { min-width: 0; flex-wrap: wrap; gap: 0 8px; } }
 @media print {
