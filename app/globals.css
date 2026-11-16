@@ -30,6 +30,7 @@
   --space: 16px;
   --text-max: none;
   --body-size: 20px;
+  --body-line-height: 20px;
   --loader-size: 80px;
   --section-gap: 96px;
   --theme-duration: 350ms;
@@ -49,7 +50,7 @@ body {
   font-family: var(--font-neue-montreal), Arial, sans-serif;
   font-weight: 500;
   font-size: var(--body-size);
-  line-height: 1;
+  line-height: var(--body-line-height);
   letter-spacing: 0;
   color: var(--foreground-primary);
   -webkit-font-smoothing: antialiased;
@@ -83,7 +84,7 @@ main:focus { outline: none; }
 @media (hover: hover) and (pointer: fine) {
   .home-link:hover .pill { background: var(--background-elevated); color: var(--foreground-elevated); }
 }
-.bio { flex: 1 1 calc(50% + var(--loader-size) / 2 + var(--space)); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space); padding: var(--space); pointer-events: auto; }
+.bio { flex: 1 1 calc(50% + var(--loader-size) / 2 + var(--space)); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1lh; padding: var(--space); pointer-events: auto; }
 .bio p { width: 100%; max-width: 448px; }
 .bio, .project-details { font-feature-settings: "cpsp" 1, "case" 1, "lnum" 1, "pnum" 1; }
 .bio-link { display: flex; flex-direction: column; }
@@ -105,7 +106,7 @@ main:focus { outline: none; }
 .carousel-half:focus-visible { outline-offset: -6px; }
 .project-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space); align-items: start; padding: var(--space); }
 .pagination { grid-column: 1; white-space: nowrap; }
-.project-description { grid-column: 2 / 4; min-width: 0; width: 100%; max-width: var(--text-max); justify-self: end; display: flex; flex-direction: column; gap: var(--space); }
+.project-description { grid-column: 2 / 4; min-width: 0; width: 100%; max-width: var(--text-max); justify-self: end; display: flex; flex-direction: column; gap: 1lh; }
 .project-description p { position: relative; width: 100%; }
 
 /* Change composition when the two-column desktop text area gets too narrow. */
@@ -117,12 +118,14 @@ main:focus { outline: none; }
   .project-details { grid-column: span 2; padding-top: 0; }
   .project-section--first .project-details { padding-top: var(--space); }
 }
-/* The 315px nav cannot fit beside the aligned bio below this width. */
+/* Mobile navigation spans the viewport; the bio uses the left text column. */
 @media (max-width: 741px) {
-  :root { --body-size: 16px; --loader-size: 64px; --section-gap: 56px; }
-  .navigation { flex-basis: auto; }
-  .bio { flex-basis: 100%; }
-  .projects-loader { top: auto; left: 16px; bottom: 16px; transform: none; border-radius: 10px; }
+  :root { --body-size: 14px; --body-line-height: 16px; --loader-size: 64px; --section-gap: 56px; }
+  .navigation, .dynamic-nav--projects .navigation { flex-basis: 100%; justify-content: space-between; font-size: 14px; }
+  .bio { flex-basis: 100%; padding-right: calc(50% + var(--space) / 2); }
+  .project-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-description { grid-column: 2; }
+  .projects-loader { border-radius: 10px; }
 }
 @media (max-width: 314px) { .navigation { min-width: 0; flex-wrap: wrap; gap: 0 8px; } }
 @media print {
