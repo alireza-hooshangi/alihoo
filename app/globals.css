@@ -28,6 +28,7 @@
 }
 :root {
   --space: 16px;
+  --space-inline: 14px;
   --text-max: none;
   --body-size: 20px;
   --body-line-height: 20px;
@@ -73,8 +74,8 @@ main:focus { outline: none; }
 /* The bio's padded text edge, not its wrapper, meets the loader's left edge. */
 .dynamic-nav { position: fixed; inset: 0 0 auto; z-index: 10; display: flex; flex-wrap: wrap; align-items: flex-start; pointer-events: none; }
 .navigation {
-  display: flex; flex: 0 0 calc(50% - var(--loader-size) / 2 - var(--space));
-  min-width: max-content; gap: 8px; align-items: center; padding-inline: var(--space); font-size: 16px; line-height: 16px;
+  display: flex; flex: 0 0 calc(50% - var(--loader-size) / 2 - var(--space-inline));
+  min-width: max-content; gap: 8px; align-items: center; padding-inline: var(--space-inline); font-size: 16px; line-height: 16px;
 }
 .theme-toggle { display: flex; gap: 8px; }
 .nav-control { display: flex; align-items: center; padding-block: var(--space); flex: none; pointer-events: auto; }
@@ -84,7 +85,7 @@ main:focus { outline: none; }
 @media (hover: hover) and (pointer: fine) {
   .home-link:hover .pill { background: var(--background-elevated); color: var(--foreground-elevated); }
 }
-.bio { flex: 1 1 calc(50% + var(--loader-size) / 2 + var(--space)); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1lh; padding: var(--space); pointer-events: auto; }
+.bio { flex: 1 1 calc(50% + var(--loader-size) / 2 + var(--space-inline)); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1lh; padding: var(--space) var(--space-inline); pointer-events: auto; }
 .bio p { width: 100%; max-width: 448px; }
 .bio, .project-details { font-feature-settings: "cpsp" 1, "case" 1, "lnum" 1, "pnum" 1; }
 .bio-link { display: flex; flex-direction: column; }
@@ -104,7 +105,7 @@ main:focus { outline: none; }
 .carousel-half--previous { left: 0; }
 .carousel-half--next { right: 0; }
 .carousel-half:focus-visible { outline-offset: -6px; }
-.project-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space); align-items: start; padding: var(--space); }
+.project-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space); align-items: start; padding: var(--space) var(--space-inline); }
 .pagination { grid-column: 1; white-space: nowrap; }
 .project-description { grid-column: 2 / 4; min-width: 0; width: 100%; max-width: var(--text-max); justify-self: end; display: flex; flex-direction: column; gap: 1lh; }
 .project-description p { position: relative; width: 100%; }
@@ -118,15 +119,19 @@ main:focus { outline: none; }
   .project-details { grid-column: span 2; padding-top: 0; }
   .project-section--first .project-details { padding-top: var(--space); }
 }
-/* Mobile navigation spans the viewport; the bio uses the left text column. */
+/* Mobile home content flows from the navigation through the project loader. */
 @media (max-width: 741px) {
   :root { --body-size: 20px; --body-line-height: 20px; --section-gap: 56px; }
   .navigation, .dynamic-nav--projects .navigation { flex-basis: 100%; justify-content: space-between; font-size: 16px; }
-  .bio { flex-basis: 100%; padding: 16px; gap: 20px; }
-  .bio p { width: calc((100vw - 32px) * 5 / 6); max-width: none; }
+  [data-view="home"] .dynamic-nav { position: relative; gap: 8px; }
+  [data-view="home"] .navigation { justify-content: flex-start; }
+  [data-view="home"] .pill { padding-bottom: 1px; }
+  .bio { flex-basis: 100%; padding: 0 var(--space-inline); gap: var(--space); }
+  .bio p { width: 100%; max-width: none; }
   .bio-link { font-size: 20px; line-height: 20px; }
   .project-description { gap: 16px; }
-  .projects-loader { top: auto; left: 16px; bottom: 16px; transform: none; border-radius: 10px; }
+  .home-view { min-height: 0; padding: 32px var(--space-inline) var(--space); }
+  .projects-loader { position: relative; display: block; top: auto; left: auto; transform: none; border-radius: 12px; }
 }
 @media (max-width: 314px) { .navigation { min-width: 0; flex-wrap: wrap; gap: 0 8px; } }
 @media print {
